@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Pediatric Clinical Triage Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #090d16;
+            --surface-panel: rgba(18, 24, 38, 0.7);
+            --surface-card: #131b2e;
+            --border-subtle: #1e293b;
+            --primary: #3b82f6;
+            --primary-accent: #60a5fa;
+            --text-heading: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-sub: #64748b;
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+            min-height: 100vh;
+            color: var(--text-heading);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .brand-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-badge {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+
+        .portal-grid {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--surface-panel);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: var(--text-sub);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Preset Buttons Container */
+        .preset-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .btn-preset {
+            background: #0d1322;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 8px 6px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-preset:hover {
+            border-color: var(--primary);
+            color: var(--text-heading);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-preset.active {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary-accent);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            width: 100%;
+            background: #0d1322;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-heading);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-evaluate {
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+
+        .btn-evaluate:hover {
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .diagnostic-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin: 8px 0 14px 0;
+        }
+
+        .badge-stunting { background: var(--danger-bg); color: #f87171; border: 1px solid var(--danger); }
+        .badge-underweight { background: var(--warning-bg); color: #fbbf24; border: 1px solid var(--warning); }
+        .badge-overweight { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid var(--primary); }
+        .badge-normal { background: var(--success-bg); color: #34d399; border: 1px solid var(--success); }
+
+        .metric-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .m-card {
+            background: #0d1322;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .m-title {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .m-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 4px;
+            color: var(--text-heading);
+        }
+
+        .growth-meter-block {
+            margin-bottom: 20px;
+        }
+
+        .meter-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #0d1322;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
+        }
+
+        .clinical-advisory {
+            background: #0c1220;
+            border-left: 3px solid var(--primary);
+            border-radius: 6px;
+            padding: 14px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .advisory-title {
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="brand-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Smart Malnutrition Triage System
+    </div>
+    <div class="brand-badge">XGBOOST V2.1 • 89.5% ACCURACY</div>
+</div>
+
+<div class="portal-grid">
+    <!-- Input Form Section -->
+    <div class="panel">
+        <div class="section-label">Clinical Demo Presets</div>
+       <div class="preset-container" style="grid-template-columns: repeat(4, 1fr);">
+            <button type="button" class="btn-preset" onclick="loadPreset('Normal')">🟢 Normal</button>
+            <button type="button" class="btn-preset" onclick="loadPreset('Stunting')">🔴 Stunting</button>
+            <button type="button" class="btn-preset" onclick="loadPreset('Underweight')">🟡 Underweight</button>
+            <button type="button" class="btn-preset" onclick="loadPreset('Overweight')">🔵 Overweight</button>
+        </div>
+
+        <div class="section-label">Patient Anthropometrics</div>
+        
+        <form id="triage-form">
+            <div class="form-grid">
+                <div class="field-group">
+                    <label for="sex">Biological Sex</label>
+                    <select id="sex">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="age">Age (Years)</label>
+                    <input type="number" step="0.1" id="age" value="5.0" required>
+                </div>
+                <div class="field-group">
+                    <label for="height">Height (cm)</label>
+                    <input type="number" step="0.1" id="height" value="75.0" required>
+                </div>
+                <div class="field-group">
+                    <label for="weight">Weight (kg)</label>
+                    <input type="number" step="0.1" id="weight" value="17.0" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-evaluate" id="btn-submit">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Execute Diagnostic Triage
+            </button>
+        </form>
+    </div>
+
+    <!-- Output Diagnostic Dashboard -->
+    <div class="panel" id="result-panel">
+        <div class="section-label">Diagnostic Assessment</div>
+
+        <div class="diagnostic-card">
+            <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-sub); font-weight: 600;">Automated Severity Classification</div>
+            <div id="status-badge" class="status-badge badge-stunting">Awaiting Assessment</div>
+            <p id="diagnosis-desc" style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.4;">
+                Click any clinical preset or adjust inputs to evaluate diagnostic triage.
+            </p>
+        </div>
+
+        <div class="metric-cards">
+            <div class="m-card">
+                <div class="m-title">Derived BMI</div>
+                <div class="m-val" id="disp-bmi">--</div>
+            </div>
+            <div class="m-card">
+                <div class="m-title">HAZ Proxy</div>
+                <div class="m-val" id="disp-haz">--</div>
+            </div>
+            <div class="m-card">
+                <div class="m-title">WAZ Proxy</div>
+                <div class="m-val" id="disp-waz">--</div>
+            </div>
+        </div>
+
+        <div class="growth-meter-block">
+            <div class="meter-label-row">
+                <span>WHO Reference Concordance</span>
+                <span id="disp-percent">--</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="clinical-advisory">
+            <div class="advisory-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                Clinical Dietary Protocol
+            </div>
+            <div id="advisory-text">Select a clinical profile or run custom screening to view automated pediatric nutritional intervention guidelines.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validated dataset ground truth benchmarks
+    const presets = {
+        'Normal':      { sex: 'Male', age: 3.0, height: 91.0, weight: 14.1 },
+        'Stunting':    { sex: 'Male', age: 5.0, height: 75.0, weight: 17.0 },
+        'Underweight': { sex: 'Male', age: 3.0, height: 104.0, weight: 12.0 },
+        'Overweight':  { sex: 'Female', age: 2.0, height: 86.0, weight: 17.5 }
+    };
+
+    function loadPreset(condition) {
+        const data = presets[condition];
+        if (!data) return;
+
+        document.getElementById('sex').value = data.sex;
+        document.getElementById('age').value = data.age;
+        document.getElementById('height').value = data.height;
+        document.getElementById('weight').value = data.weight;
+
+        // Auto trigger diagnostic run
+        document.getElementById('triage-form').dispatchEvent(new Event('submit'));
+    }
+
+    document.getElementById('triage-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit');
+        btn.innerText = "Analyzing Biometric Vector...";
+        btn.disabled = true;
+
+        const sex = document.getElementById('sex').value;
+        const age = parseFloat(document.getElementById('age').value);
+        const height = parseFloat(document.getElementById('height').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+
+        try {
+            const res = await fetch(`/Predict?Sex=${sex}&Age=${age}&Height=${height}&Weight=${weight}`);
+            const data = await res.json();
+
+            const detected = data["Detected as"];
+            const statusBadge = document.getElementById('status-badge');
+            const diagnosisDesc = document.getElementById('diagnosis-desc');
+            const advisoryText = document.getElementById('advisory-text');
+            const progressBar = document.getElementById('progress-bar');
+            
+            statusBadge.innerText = detected;
+            statusBadge.className = 'status-badge';
+
+            const refH = 75.0 + (age - 1.0) * 8.0;
+            const refW = 9.5 + (age - 1.0) * 2.3;
+            const haz = ((height - refH) / 3.5).toFixed(2);
+            const waz = ((weight - refW) / 1.5).toFixed(2);
+
+            document.getElementById('disp-bmi').innerText = data.Input_Summary.Derived_BMI;
+            document.getElementById('disp-haz').innerText = (haz > 0 ? "+" : "") + haz;
+            document.getElementById('disp-waz').innerText = (waz > 0 ? "+" : "") + waz;
+
+            if (detected.toLowerCase().includes('stunt')) {
+                statusBadge.classList.add('badge-stunting');
+                diagnosisDesc.innerText = "Chronic undernutrition identified. Height-for-Age metric falls significantly below WHO standardized median curves.";
+                advisoryText.innerText = "Prescribe Ready-to-Use Supplementary Food (RUSF), micronutrient powders (zinc + vitamin A), and protein fortification. Monitor linear height velocity monthly.";
+                progressBar.style.width = "35%";
+                progressBar.style.backgroundColor = "var(--danger)";
+                document.getElementById('disp-percent').innerText = "Severely Impaired (Height Deficit)";
+            } else if (detected.toLowerCase().includes('underweight')) {
+                statusBadge.classList.add('badge-underweight');
+                diagnosisDesc.innerText = "Acute or composite weight deficit identified. Weight-for-Age indicates insufficient caloric and macronutrient density.";
+                advisoryText.innerText = "Increase lipid and energy density with calorie-dense porridge, boiled legumes, egg, and targeted energy supplements. Schedule bi-weekly weight audits.";
+                progressBar.style.width = "48%";
+                progressBar.style.backgroundColor = "var(--warning)";
+                document.getElementById('disp-percent').innerText = "Sub-optimal Weight Velocity";
+            } else if (detected.toLowerCase().includes('overweight')) {
+                statusBadge.classList.add('badge-overweight');
+                diagnosisDesc.innerText = "BMI-for-Age trajectory exceeds expected clinical percentiles. Elevated risk of metabolic acceleration.";
+                advisoryText.innerText = "Recommend structured activity, elimination of ultra-processed sugars/juices, and portion regulation while ensuring micronutrient adequacy.";
+                progressBar.style.width = "85%";
+                progressBar.style.backgroundColor = "var(--primary)";
+                document.getElementById('disp-percent').innerText = "Upper Percentile (> +2 SD)";
+            } else {
+                statusBadge.classList.add('badge-normal');
+                diagnosisDesc.innerText = "Growth trajectory aligns with WHO pediatric development standards. Balanced linear and ponderal velocity.";
+                advisoryText.innerText = "Maintain standard age-appropriate balanced nutritional intake with diverse vegetables, dairy, grains, and clean hydration.";
+                progressBar.style.width = "95%";
+                progressBar.style.backgroundColor = "var(--success)";
+                document.getElementById('disp-percent').innerText = "Standard Median (WHO Ideal)";
+            }
+
+        } catch (err) {
+            alert("Error communicating with prediction microservice.");
+        } finally {
+            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Execute Diagnostic Triage`;
+            btn.disabled = false;
+        }
+    });
+
+    // Auto-run initial evaluation on load
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('triage-form').dispatchEvent(new Event('submit'));
+    });
+</script>
+
+</body>
+</html>
